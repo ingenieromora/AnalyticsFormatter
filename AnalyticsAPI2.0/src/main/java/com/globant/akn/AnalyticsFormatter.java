@@ -43,7 +43,7 @@ public class AnalyticsFormatter {
 	 * @version 2.0
 	 * @return the current AnalyticsWriter instance
 	 */
-	public AnalyticsFormatter put(Key key, String value) {
+	public synchronized AnalyticsFormatter put(Key key, String value) {
 
 		logAttrs.put(key, value);
 		return this;
@@ -71,7 +71,7 @@ public class AnalyticsFormatter {
 //----------------------------------
 	
 	/**
-	 * Removes the specified value with the specified key. 
+	 * Removes a value associated with an specified key. 
 	 * @param key with which the specified value is to be associated
 	 * @return the current AnalyticsWriter instance
 	 * @version 2.0
