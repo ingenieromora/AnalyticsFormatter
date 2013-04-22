@@ -1,9 +1,8 @@
-package com.globant.akn;
+package autodesk.com;
 
 import java.util.Date;
-import java.util.EnumMap;
+import java.util.TreeMap;
 
-import com.globant.akn.KeyPair.Key;
 import com.google.gson.Gson;
 
 //TODO Ask tony about the JSON format
@@ -11,7 +10,7 @@ public class AnalyticsFormatter {
 
 //----------------------------------  Fields -------------------------------------------------
 	
-	private EnumMap<Key, String> logAttrs = new EnumMap<Key, String>(Key.class);
+ private TreeMap<String, String> logAttrs = new TreeMap<String, String>();
 
 
 //----------------------------------  Constructors -------------------------------------------------
@@ -31,7 +30,9 @@ public class AnalyticsFormatter {
 	 * @version 2.0
 	 */
 	public AnalyticsFormatter(String category) {
-		logAttrs.put(Key.CATEGORY, category);
+		if(!category.isEmpty()){
+			logAttrs.put("CATEGORY", category);
+		}
 	}
 
 //----------------------------------  Methods -------------------------------------------------
@@ -43,27 +44,9 @@ public class AnalyticsFormatter {
 	 * @version 2.0
 	 * @return the current AnalyticsWriter instance
 	 */
-	public synchronized AnalyticsFormatter put(Key key, String value) {
-
-		logAttrs.put(key, value);
-		return this;
-	}
-	
-//----------------------------------
-	
-	/**
-	 * Add all of elements in the specified KeyPair array to AnalyticsWriter. If the key does already exist, the old value is replaced.
-	 * @param keyArray the array with KeyPair instances
-	 * @return the current AnalyticsWriter instance
-	 * @version 2.0
-	 * @author leandro.mora
-	 */
-	public synchronized AnalyticsFormatter put(KeyPair[] keyArray) {
-
-		for (int i = 0; i < keyArray.length; ++i) {
-
-			KeyPair keyPair = keyArray[i];
-			logAttrs.put(keyPair.getKey(), keyPair.getValue());
+	public synchronized AnalyticsFormatter put(String key, String value) {
+		if(!(key.isEmpty()) & !(value.isEmpty())){
+			logAttrs.put(key, value);
 		}
 		return this;
 	}
@@ -77,9 +60,10 @@ public class AnalyticsFormatter {
 	 * @version 2.0
 	 * @author leandro.mora
 	 */
-	public synchronized AnalyticsFormatter del(Key key) {
-
-		logAttrs.remove(key);
+	public synchronized AnalyticsFormatter del(String key) {
+		if(!key.isEmpty()){
+			logAttrs.remove(key);
+		}
 		return this;
 	}
 	
@@ -94,7 +78,7 @@ public class AnalyticsFormatter {
 
 	private String formatAttributesAsJason() {
 
-		logAttrs.put(Key.ADSK_REQ_DATE, this.getTimeStamp());
+		logAttrs.put("ADSK_REQ_DATE", this.getTimeStamp());
 		String json = "";
 		json = new Gson().toJson(logAttrs);
 		return json;
@@ -106,7 +90,7 @@ public class AnalyticsFormatter {
 	 * Generate a string which includes all the attributes of the instance in a JSON format
 	 * @return String
 	 */
-	public String output() {
+	public String outputEvent() {
 		
 		return formatAttributesAsJason();
 	}

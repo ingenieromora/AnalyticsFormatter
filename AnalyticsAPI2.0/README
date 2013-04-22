@@ -1,0 +1,11 @@
+Analytics Formatter
+@Version:2.0
+@Contact:leandro.mora@globant.com
+@Description:
+
+This API gives the user some methods to log information as a Jason Format in an easy way.
+The user only has to instantiate a Analytics Formatter class, add to that class the attributes that he wants to be logged and print that information.
+The methods in this class are thread safe and all of the are tested.
+
+For more information please go to the wiki page:
+
