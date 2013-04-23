@@ -32,7 +32,7 @@ public class AnalyticsFormatter {
 
 	/**
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
-	 * @param key key with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
+	 * @param a key instance with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
 	 * @param value value to be associated with the specified key
 	 * @version 2.0
 	 * @return the current AnalyticsWriter instance
@@ -46,7 +46,7 @@ public class AnalyticsFormatter {
 
 	/**
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
-	 * @param key key with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
+	 * @param a String key with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
 	 * @param value value to be associated with the specified key
 	 * @version 2.0
 	 * @return the current AnalyticsWriter instance
@@ -73,7 +73,19 @@ public class AnalyticsFormatter {
 		}
 		return this;
 	}
+	//----------------------------------
 	
+		/**
+		 * Removes a value associated with an specified key. 
+		 * @param key with which the specified value is to be associated
+		 * @return the current AnalyticsWriter instance
+		 * @version 2.0
+		 * @author t_moral
+		 */
+		public synchronized AnalyticsFormatter del(Key key) {
+			logEnumAttrs.remove(key);
+			return this;
+		}	
 //----------------------------------	
 	
 	private String getTimeStamp() {
