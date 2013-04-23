@@ -4,6 +4,8 @@ package autodesk.com;
 import junit.framework.Assert;
 import org.junit.Test;
 
+import autodesk.com.KeyPair.Key;
+
 
 
 public class AnalyticsFormatterTest {
@@ -11,9 +13,13 @@ public class AnalyticsFormatterTest {
 	
 	public static String removesTimestamp(String output){
 		
-		String initial=output.substring(0,output.indexOf("\"ADSK_REQ_DATE\":"));
+		String initial=output.substring(0,output.indexOf(",\"ADSK_REQ_DATE\":"));
 		String last=output.substring(output.indexOf("\"ADSK_REQ_DATE\":"));
-		last=last.substring(last.indexOf(",")+1);
+		if(last.contains(",")){
+			last=last.substring(last.indexOf(","));
+		}else{
+			last=last.substring(last.indexOf("}"));
+		}
 		return initial+last;
 	}
 	
@@ -26,11 +32,12 @@ public class AnalyticsFormatterTest {
 	 */
 	@Test
 	public void testConstructor(){
-		analytics=new AnalyticsFormatter("DEV");
-		
+		//analytics=new AnalyticsFormatter("DEV");
+		analytics=new AnalyticsFormatter();
+
 		analytics.put("ADSK_ID","201010041558230").put("MODULE", "folder");
 		
-		String expected="{\"ADSK_ID\":\"201010041558230\",\"CATEGORY\":\"DEV\",\"MODULE\":\"folder\"}";
+		String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
 		Assert.assertEquals(expected,removesTimestamp(analytics.outputEvent()));
 	}
 	
@@ -44,11 +51,12 @@ public class AnalyticsFormatterTest {
 	 */
 	@Test
 	public void testNullKey(){
-		analytics=new AnalyticsFormatter("DEV");
-		
+		//analytics=new AnalyticsFormatter("DEV");
+		analytics=new AnalyticsFormatter();
+
 		analytics.put("ADSK_ID","201010041558230").put("", "folder");
 		
-		String expected="{\"ADSK_ID\":\"201010041558230\",\"CATEGORY\":\"DEV\"}";
+		String expected="{\"ADSK_ID\":\"201010041558230\"}";
 		Assert.assertEquals(expected,removesTimestamp(analytics.outputEvent()));
 	}
 
@@ -61,13 +69,15 @@ public class AnalyticsFormatterTest {
 		 */
 		@Test
 		public void testNullValue(){
-			analytics=new AnalyticsFormatter("DEV");
-			
+		//	analytics=new AnalyticsFormatter("DEV");
+			analytics=new AnalyticsFormatter();
+
 			analytics.put("ADSK_ID","201010041558230").put("INSTANCE_TYPE", "").put("MODULE", "folder");
 			
-			String expected="{\"ADSK_ID\":\"201010041558230\",\"CATEGORY\":\"DEV\",\"MODULE\":\"folder\"}";
+			String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
 			Assert.assertEquals(expected,removesTimestamp(analytics.outputEvent()));
-		}
+		}			
+
 
 //----------------------------------------------
 
@@ -78,11 +88,11 @@ public class AnalyticsFormatterTest {
 		 */
 		@Test
 		public void testNullValueAndNullKey(){
-			analytics=new AnalyticsFormatter("DEV");
-			
+			analytics=new AnalyticsFormatter();
+
 			analytics.put("ADSK_ID","201010041558230").put("", "").put("MODULE", "folder");
 			
-			String expected="{\"ADSK_ID\":\"201010041558230\",\"CATEGORY\":\"DEV\",\"MODULE\":\"folder\"}";
+			String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
 			Assert.assertEquals(expected,removesTimestamp(analytics.outputEvent()));
 		}
 		
@@ -94,12 +104,12 @@ public class AnalyticsFormatterTest {
 	 * @author leandro.mora
 	 */
 	@Test
-	public void testKey(){
+	public void testKeyJoiner(){
 		analytics=new AnalyticsFormatter();
 		analytics.put("MODULE", "folder")
 		.put("ADSK_ID","201010041558230")
-		.put("CATEGORY","AP_DEV")
-		.put("ADSK_SRC_CONSUMER_ID","autocad")
+		.put(Key.CATEGORY,"AP_DEV")
+		.put(Key.ADSK_SRC_CONSUMER_ID,"autocad")
 		.put("ADSK_RECORD_SRC","autocad")
 		.put("ADSK_USER_TOKEN","6aHXtUgi8hZm5+/TVsdmxqXmalM")
 		.put("INSTANCE_TYPE","CALL")
@@ -112,6 +122,7 @@ public class AnalyticsFormatterTest {
         .put("HTTP_REQ_URL", "/storage/folders/v1/user/201010041558230/service/my/folder/@root");
 
 		String expected="{\"ADSK_EXEC_TIME\":\"50\",\"ADSK_ID\":\"201010041558230\",\"ADSK_RECORD_SRC\":\"autocad\",\"ADSK_SRC_CONSUMER_ID\":\"autocad\",\"ADSK_STATUS\":\"200\",\"ADSK_USER_TOKEN\":\"6aHXtUgi8hZm5+/TVsdmxqXmalM\",\"BYTES_OUTPUT\":\"500\",\"CATEGORY\":\"AP_DEV\",\"HTTP_REQ_URL\":\"/storage/folders/v1/user/201010041558230/service/my/folder/@root\",\"HTTP_STATUS\":\"TRUE\",\"INSTANCE_TYPE\":\"CALL\",\"MODULE\":\"folder\",\"OPERATION\":\"List\"}";
+	
 		Assert.assertEquals(expected,removesTimestamp(analytics.outputEvent()));
 	}
 		
@@ -135,6 +146,6 @@ public class AnalyticsFormatterTest {
 		String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
 		Assert.assertEquals(expected,removesTimestamp(analytics.outputEvent()));
 	}
-	
+
 	
 }
