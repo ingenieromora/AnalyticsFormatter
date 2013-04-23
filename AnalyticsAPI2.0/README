@@ -8,4 +8,4 @@ The user only has to instantiate a Analytics Formatter class, add to that class 
 The methods in this class are thread safe and all of the are tested.
 
 For more information please go to the wiki page:
-
+http://wiki.autodesk.com/pages/viewpage.action?pageId=112139079
