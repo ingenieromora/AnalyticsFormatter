@@ -2,7 +2,10 @@ package autodesk.com;
 
 
 import junit.framework.Assert;
+
+import org.apache.log4j.Logger;
 import org.junit.Test;
+
 
 import autodesk.com.KeyPair.Key;
 
@@ -10,7 +13,7 @@ import autodesk.com.KeyPair.Key;
 
 public class AnalyticsFormatterTest {
 	AnalyticsFormatter myAnalytics;
-	
+
 	public static String removesTimestamp(String output){
 		
 		String initial=output.substring(0,output.indexOf(",\"ADSK_REQ_DATE\":"));
@@ -32,13 +35,14 @@ public class AnalyticsFormatterTest {
 	 */
 	@Test
 	public void testConstructor(){
-		//myAnalytics=new AnalyticsFormatter("DEV");
 		myAnalytics=new AnalyticsFormatter();
 
-		myAnalytics.put(Key.ADSK_ID,"201010041558230").put(Key.MODULE, "folder");
+		myAnalytics.put(Key.api_category,"file").put(Key.api_level, "primary");
 		
-		String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
-		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+		String expected="{\"api_category\":\"file\",\"api_level\":\"primary\"}";
+//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+		Assert.assertEquals(expected,myAnalytics.outputEvent());
+
 	}
 	
 //----------------------------------------------
@@ -51,13 +55,14 @@ public class AnalyticsFormatterTest {
 	 */
 	@Test
 	public void testNullKey(){
-		//myAnalytics=new AnalyticsFormatter("DEV");
 		myAnalytics=new AnalyticsFormatter();
 
-		myAnalytics.put(Key.ADSK_ID,"201010041558230").put("", "folder");
+		myAnalytics.put(Key.api_category,"file").put("", "folder");
 		
-		String expected="{\"ADSK_ID\":\"201010041558230\"}";
-		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+		String expected="{\"api_category\":\"file\"}";
+//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+		Assert.assertEquals(expected,myAnalytics.outputEvent());
+
 	}
 
 //----------------------------------------------
@@ -69,13 +74,14 @@ public class AnalyticsFormatterTest {
 		 */
 		@Test
 		public void testNullValue(){
-		//	myAnalytics=new AnalyticsFormatter("DEV");
 			myAnalytics=new AnalyticsFormatter();
 
-			myAnalytics.put(Key.ADSK_ID,"201010041558230").put(Key.INSTANCE_TYPE, "").put(Key.MODULE, "folder");
+			myAnalytics.put(Key.api_category,"file").put(Key.api_scope, "").put(Key.facets_included, "storage");
 			
-			String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
-			Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+			String expected="{\"api_category\":\"file\",\"facets_included\":\"storage\"}";
+//			Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+			Assert.assertEquals(expected,myAnalytics.outputEvent());
+
 		}			
 
 
@@ -90,10 +96,12 @@ public class AnalyticsFormatterTest {
 		public void testNullValueAndNullKey(){
 			myAnalytics=new AnalyticsFormatter();
 
-			myAnalytics.put(Key.ADSK_ID,"201010041558230").put("", "").put(Key.MODULE, "folder");
+			myAnalytics.put(Key.api_category,"file").put("", "").put(Key.facets_included, "storage");
 			
-			String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
-			Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+			String expected="{\"api_category\":\"file\",\"facets_included\":\"storage\"}";
+//			Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+			Assert.assertEquals(expected,myAnalytics.outputEvent());
+
 		}
 		
 //----------------------------------------------
@@ -106,24 +114,14 @@ public class AnalyticsFormatterTest {
 	@Test
 	public void testKeyJoiner(){
 		myAnalytics=new AnalyticsFormatter();
-		myAnalytics.put(Key.MODULE, "folder")
-		.put(Key.ADSK_ID,"201010041558230")
-		.put(Key.CATEGORY,"AP_DEV")
-		.put(Key.ADSK_SRC_CONSUMER_ID,"autocad")
-		.put(Key.ADSK_RECORD_SRC,"autocad")
-		.put(Key.ADSK_USER_TOKEN,"6aHXtUgi8hZm5+/TVsdmxqXmalM")
-		.put(Key.INSTANCE_TYPE,"CALL")
-        .put(Key.OPERATION, "List")
-        .put(Key.ADSK_STATUS, "200")
-        .put(Key.HTTP_STATUS, "200")
-        .put(Key.HTTP_STATUS, "TRUE")
-        .put(Key.ADSK_EXEC_TIME, "50")
-        .put(Key.BYTES_OUTPUT, "500")
-        .put("HTTP_REQ_URL", "/storage/folders/v1/user/201010041558230/service/my/folder/@root");//TODO Change it by a static variable
+		myAnalytics.put(Key.api_category, "file")
+		.put(FacetsKeys.CURRENT_STATE,"2.0.4");
 
-		String expected="{\"ADSK_EXEC_TIME\":\"50\",\"ADSK_ID\":\"201010041558230\",\"ADSK_RECORD_SRC\":\"autocad\",\"ADSK_SRC_CONSUMER_ID\":\"autocad\",\"ADSK_STATUS\":\"200\",\"ADSK_USER_TOKEN\":\"6aHXtUgi8hZm5+/TVsdmxqXmalM\",\"BYTES_OUTPUT\":\"500\",\"CATEGORY\":\"AP_DEV\",\"HTTP_REQ_URL\":\"/storage/folders/v1/user/201010041558230/service/my/folder/@root\",\"HTTP_STATUS\":\"TRUE\",\"INSTANCE_TYPE\":\"CALL\",\"MODULE\":\"folder\",\"OPERATION\":\"List\"}";
+		String expected="{\"api_category\":\"file\",\"compute_job_current_state\":\"2.0.4\"}";
 	
-		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+		Assert.assertEquals(expected,myAnalytics.outputEvent());
+
 	}
 		
 //----------------------------------------------
@@ -137,16 +135,17 @@ public class AnalyticsFormatterTest {
 	public void testDel(){
 		myAnalytics=new AnalyticsFormatter();
 
-		myAnalytics.put("ADSK_ID","201010041558230")
-		.put(Key.MODULE, "folder")
-		.put("HTTP_STATUS", "folder")
-		.put(Key.CATEGORY,"AP_DEV");
+		myAnalytics.put(Key.api_category,"file")
+		.put(FacetsKeys.CURRENT_STATE, "2.0.4")
+		.put(Key.status,"ok");
 		
-		myAnalytics.del("HTTP_STATUS");//TODO Change it by a static variable
-		myAnalytics.del(Key.CATEGORY);
-		myAnalytics.del(Key.BYTES_OUTPUT); // we test that it doesn't return an error
-		String expected="{\"ADSK_ID\":\"201010041558230\",\"MODULE\":\"folder\"}";
-		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+		myAnalytics.del(FacetsKeys.CURRENT_STATE);//TODO Change it by a static variable
+		myAnalytics.del(Key.api_category);
+		myAnalytics.del(Key.consumer_src); // we test that it doesn't return an error
+		String expected="{\"status\":\"ok\"}";
+//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
+		Assert.assertEquals(expected,myAnalytics.outputEvent());
+
 	}
 
 	

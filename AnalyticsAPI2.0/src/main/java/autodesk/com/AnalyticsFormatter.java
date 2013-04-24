@@ -9,6 +9,13 @@ import autodesk.com.KeyPair.Key;
 
 import com.google.gson.Gson;
 
+/**
+ * Class used for containing different attributes and generate with that information
+ *  an output String in a Jason Format.
+ * @version 2.0.3
+ * @author leandro.mora
+ *
+ */
 public class AnalyticsFormatter {
 
 //----------------------------------  Fields -------------------------------------------------
@@ -39,7 +46,9 @@ public class AnalyticsFormatter {
 	 * @author t_moral
 	 */
 	public synchronized AnalyticsFormatter put(Key key, String value) {
-		logEnumAttrs.put(key, value);
+		if( (key!=null) && !(value.isEmpty()) ){
+			logEnumAttrs.put(key, value);
+		}
 		return this;
 	}
 	//----------------------------------
@@ -97,7 +106,7 @@ public class AnalyticsFormatter {
 
 	private String formatAttributesAsJason() {
 
-		logAttrs.put("ADSK_REQ_DATE", this.getTimeStamp());
+	//	logAttrs.put("ADSK_REQ_DATE", this.getTimeStamp());
 		String json = "";
 		logAttrs=this.mixMaps(logEnumAttrs, logAttrs);
 		json = new Gson().toJson(logAttrs);
