@@ -1,4 +1,4 @@
-package autodesk.com;
+package autodesk.com.clientlib;
 
 /**
  * Class that contains the information related with facets in String constants.

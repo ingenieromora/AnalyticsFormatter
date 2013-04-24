@@ -1,11 +1,11 @@
-package autodesk.com;
+package autodesk.com.clientlib;
 
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import autodesk.com.KeyPair.Key;
+import autodesk.com.clientlib.KeyPair.Key;
 
 import com.google.gson.Gson;
 

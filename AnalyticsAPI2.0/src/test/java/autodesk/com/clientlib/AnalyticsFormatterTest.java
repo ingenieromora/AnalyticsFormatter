@@ -1,13 +1,11 @@
-package autodesk.com;
+package autodesk.com.clientlib;
 
 
 import junit.framework.Assert;
 
-import org.apache.log4j.Logger;
 import org.junit.Test;
 
-
-import autodesk.com.KeyPair.Key;
+import autodesk.com.clientlib.KeyPair.Key;
 
 
 
