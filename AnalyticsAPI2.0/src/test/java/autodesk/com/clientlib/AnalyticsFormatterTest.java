@@ -12,18 +12,7 @@ import autodesk.com.clientlib.KeyPair.Key;
 public class AnalyticsFormatterTest {
 	AnalyticsFormatter myAnalytics;
 
-	public static String removesTimestamp(String output){
-		
-		String initial=output.substring(0,output.indexOf(",\"ADSK_REQ_DATE\":"));
-		String last=output.substring(output.indexOf("\"ADSK_REQ_DATE\":"));
-		if(last.contains(",")){
-			last=last.substring(last.indexOf(","));
-		}else{
-			last=last.substring(last.indexOf("}"));
-		}
-		return initial+last;
-	}
-	
+
 //----------------------------------------------
 
 	/**
@@ -35,10 +24,9 @@ public class AnalyticsFormatterTest {
 	public void testConstructor(){
 		myAnalytics=new AnalyticsFormatter();
 
-		myAnalytics.put(Key.api_category,"file").put(Key.api_level, "primary");
+		myAnalytics.put(Key.API_CATEGORY,"file").put(Key.API_LEVEL, "primary");
 		
 		String expected="{\"api_category\":\"file\",\"api_level\":\"primary\"}";
-//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
 		Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 	}
@@ -55,10 +43,9 @@ public class AnalyticsFormatterTest {
 	public void testNullKey(){
 		myAnalytics=new AnalyticsFormatter();
 
-		myAnalytics.put(Key.api_category,"file").put("", "folder");
+		myAnalytics.put(Key.API_CATEGORY,"file").put("", "folder");
 		
 		String expected="{\"api_category\":\"file\"}";
-//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
 		Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 	}
@@ -74,10 +61,9 @@ public class AnalyticsFormatterTest {
 		public void testNullValue(){
 			myAnalytics=new AnalyticsFormatter();
 
-			myAnalytics.put(Key.api_category,"file").put(Key.api_scope, "").put(Key.facets_included, "storage");
+			myAnalytics.put(Key.API_CATEGORY,"file").put(Key.API_SCOPE, "").put(Key.FACETS_INCLUDED, "storage");
 			
 			String expected="{\"api_category\":\"file\",\"facets_included\":\"storage\"}";
-//			Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
 			Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 		}			
@@ -94,10 +80,9 @@ public class AnalyticsFormatterTest {
 		public void testNullValueAndNullKey(){
 			myAnalytics=new AnalyticsFormatter();
 
-			myAnalytics.put(Key.api_category,"file").put("", "").put(Key.facets_included, "storage");
+			myAnalytics.put(Key.API_CATEGORY,"file").put("", "").put(Key.FACETS_INCLUDED, "storage");
 			
 			String expected="{\"api_category\":\"file\",\"facets_included\":\"storage\"}";
-//			Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
 			Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 		}
@@ -112,12 +97,11 @@ public class AnalyticsFormatterTest {
 	@Test
 	public void testKeyJoiner(){
 		myAnalytics=new AnalyticsFormatter();
-		myAnalytics.put(Key.api_category, "file")
+		myAnalytics.put(Key.API_CATEGORY, "file")
 		.put(FacetsKeys.CURRENT_STATE,"2.0.4");
 
 		String expected="{\"api_category\":\"file\",\"compute_job_current_state\":\"2.0.4\"}";
 	
-//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
 		Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 	}
@@ -133,15 +117,14 @@ public class AnalyticsFormatterTest {
 	public void testDel(){
 		myAnalytics=new AnalyticsFormatter();
 
-		myAnalytics.put(Key.api_category,"file")
+		myAnalytics.put(Key.API_CATEGORY,"file")
 		.put(FacetsKeys.CURRENT_STATE, "2.0.4")
-		.put(Key.status,"ok");
+		.put(Key.STATUS,"ok");
 		
-		myAnalytics.del(FacetsKeys.CURRENT_STATE);//TODO Change it by a static variable
-		myAnalytics.del(Key.api_category);
-		myAnalytics.del(Key.consumer_src); // we test that it doesn't return an error
+		myAnalytics.del(FacetsKeys.CURRENT_STATE);
+		myAnalytics.del(Key.API_CATEGORY);
+		myAnalytics.del(Key.CONSUMER_SRC); // we test that it doesn't return an error
 		String expected="{\"status\":\"ok\"}";
-//		Assert.assertEquals(expected,removesTimestamp(myAnalytics.outputEvent()));
 		Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 	}

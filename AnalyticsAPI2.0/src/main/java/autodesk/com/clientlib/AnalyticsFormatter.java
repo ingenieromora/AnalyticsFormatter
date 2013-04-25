@@ -1,6 +1,5 @@
 package autodesk.com.clientlib;
 
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -95,18 +94,11 @@ public class AnalyticsFormatter {
 		logEnumAttrs.remove(key);
 		return this;
 	}	
-//----------------------------------	
-	
-	private String getTimeStamp() {
-		
-		return String.format("%d", new Date().getTime());
-	}
-	
+
 //----------------------------------
 
 	private String formatAttributesAsJason() {
 
-	//	logAttrs.put("ADSK_REQ_DATE", this.getTimeStamp());
 		String json = "";
 		logAttrs=this.mixMaps(logEnumAttrs, logAttrs);
 		json = new Gson().toJson(logAttrs);
@@ -119,7 +111,7 @@ public class AnalyticsFormatter {
 		
 		for (Map.Entry<Key, String> entry : enumMap.entrySet())
 		{
-		    treeMap.put(entry.getKey().toString(), entry.getValue());
+		    treeMap.put(entry.getKey().toString().toLowerCase(), entry.getValue());
 		}
 		return treeMap;
 	}
