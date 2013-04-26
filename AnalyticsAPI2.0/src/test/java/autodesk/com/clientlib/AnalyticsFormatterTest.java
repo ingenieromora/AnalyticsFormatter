@@ -105,6 +105,24 @@ public class AnalyticsFormatterTest {
 		Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 	}
+	//----------------------------------------------
+	
+		/**
+		 * Test that given some attributes the method returns the appropriate output string.
+		 * We remove the timestamp from the test because it is generated automatically
+		 * @author leandro.mora
+		 */
+		@Test
+		public void testGet(){
+			myAnalytics=new AnalyticsFormatter();
+			myAnalytics.put(Key.API_CATEGORY, "file")
+			.put(FacetsKeys.CURRENT_STATE,"2.0.4");
+			
+			Assert.assertEquals("file", myAnalytics.get(Key.API_CATEGORY));
+			Assert.assertEquals("2.0.4", myAnalytics.get(FacetsKeys.CURRENT_STATE));
+			Assert.assertEquals(AnalyticsFormatter.ERROR_MESSAGE, myAnalytics.get(Key.CONTEXT_CALL));
+			Assert.assertEquals(AnalyticsFormatter.ERROR_MESSAGE, myAnalytics.get(FacetsKeys.JOBID));		
 		
+		}		
 	
 }

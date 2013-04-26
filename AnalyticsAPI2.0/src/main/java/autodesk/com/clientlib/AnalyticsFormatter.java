@@ -21,14 +21,14 @@ public class AnalyticsFormatter {
 	
  private TreeMap<String, String> logAttrs = new TreeMap<String, String>();
  private EnumMap<Key, String> logEnumAttrs=new EnumMap<Key,String>(Key.class);
-
+ public static final String ERROR_MESSAGE="NOT FOUND";
 //----------------------------------  Constructors -------------------------------------------------
 
 	/**
 	 * Create an instance of Analytics Writer class.
 	 * @author leandro.mora
-	 * @version 2.0
 	 * @return AnalyticsWriter instance
+	 * @version 2.0
 	 * @author t_moral
 	 */
 	public AnalyticsFormatter() {
@@ -40,8 +40,8 @@ public class AnalyticsFormatter {
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
 	 * @param a Key instance with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
 	 * @param value value to be associated with the specified key
-	 * @version 2.0
 	 * @return the current AnalyticsWriter instance
+	 * @version 2.0
 	 * @author t_moral
 	 */
 	public synchronized AnalyticsFormatter put(Key key, String value) {
@@ -54,10 +54,10 @@ public class AnalyticsFormatter {
 
 	/**
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
-	 * @param a String key with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
+	 * @param a String key with which the specified value is to be associated. We recommend to use pass a Static String variable insted of an ordinary string.
 	 * @param value value to be associated with the specified key
-	 * @version 2.0
 	 * @return the current AnalyticsWriter instance
+	 * @version 2.0
 	 * @author t_moral
 	 */
 	public synchronized AnalyticsFormatter put(String key, String value) {
@@ -67,6 +67,45 @@ public class AnalyticsFormatter {
 		return this;
 	}
 	
+//----------------------------------
+
+/**
+ * Associates the specified value with the specified key.
+ * @param a String key with which the specified value is to be associated.
+ * @version 2.0
+ * @return  value value to be associated with the specified key
+ * @author t_moral
+ */
+public synchronized String get(Key key) {
+	String output=ERROR_MESSAGE;
+	if((key!=null)){
+		output=logEnumAttrs.get(key);
+	}
+	if(output==null){
+		output=ERROR_MESSAGE;
+	}
+	return output;
+}
+
+//----------------------------------
+
+/**
+* Get a value with a key passed as parameter.
+* @param a String key with which the specified value is to be associated.
+* @return value value to be associated with the specified key
+* @version 2.0
+* @author t_moral
+*/
+public synchronized String get(String key) {
+	String output=ERROR_MESSAGE;
+	if(!(key.isEmpty())){
+		output=logAttrs.get(key);
+	}
+	if(output==null){
+		output=ERROR_MESSAGE;
+	}
+	return output;
+}
 //----------------------------------
 
 	private String formatAttributesAsJason() {
