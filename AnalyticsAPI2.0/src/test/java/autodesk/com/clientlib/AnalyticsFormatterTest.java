@@ -106,28 +106,5 @@ public class AnalyticsFormatterTest {
 
 	}
 		
-//----------------------------------------------
-	
-	/**
-	 * Test to evaluate that the del operation works
-	 * We remove the timestamp from the test because it is generated automatically
-	 * @author leandro.mora
-	 */
-	@Test
-	public void testDel(){
-		myAnalytics=new AnalyticsFormatter();
-
-		myAnalytics.put(Key.API_CATEGORY,"file")
-		.put(FacetsKeys.CURRENT_STATE, "2.0.4")
-		.put(Key.STATUS,"ok");
-		
-		myAnalytics.del(FacetsKeys.CURRENT_STATE);
-		myAnalytics.del(Key.API_CATEGORY);
-		myAnalytics.del(Key.CONSUMER_SRC); // we test that it doesn't return an error
-		String expected="{\"status\":\"ok\"}";
-		Assert.assertEquals(expected,myAnalytics.outputEvent());
-
-	}
-
 	
 }

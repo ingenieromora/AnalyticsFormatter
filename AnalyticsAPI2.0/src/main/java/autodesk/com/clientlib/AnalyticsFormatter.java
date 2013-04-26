@@ -66,35 +66,7 @@ public class AnalyticsFormatter {
 		}
 		return this;
 	}
-//----------------------------------
 	
-	/**
-	 * Removes a value associated with an specified key. 
-	 * @param key with which the specified value is to be associated
-	 * @return the current AnalyticsWriter instance
-	 * @version 2.0
-	 * @author t_moral
-	 */
-	public synchronized AnalyticsFormatter del(String key) {
-		if(!key.isEmpty()){
-			logAttrs.remove(key);
-		}
-		return this;
-	}
-	//----------------------------------
-	
-	/**
-	 * Removes a value associated with an specified key. 
-	 * @param key with which the specified value is to be associated
-	 * @return the current AnalyticsWriter instance
-	 * @version 2.0
-	 * @author t_moral
-	 */
-	public synchronized AnalyticsFormatter del(Key key) {
-		logEnumAttrs.remove(key);
-		return this;
-	}	
-
 //----------------------------------
 
 	private String formatAttributesAsJason() {
