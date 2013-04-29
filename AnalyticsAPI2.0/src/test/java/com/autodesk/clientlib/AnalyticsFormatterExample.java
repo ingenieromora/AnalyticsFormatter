@@ -1,8 +1,11 @@
-package autodesk.com.clientlib;
+package com.autodesk.clientlib;
 
 import org.apache.log4j.Logger;
 
-import autodesk.com.clientlib.KeyPair.Key;
+import com.autodesk.clientlib.AnalyticsFormatter;
+import com.autodesk.clientlib.FacetsKeys;
+import com.autodesk.clientlib.KeyPair.Key;
+
 
 public class AnalyticsFormatterExample {
 	static final Logger as_looger = Logger.getLogger(AnalyticsFormatterExample.class);

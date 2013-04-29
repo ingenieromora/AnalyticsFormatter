@@ -1,4 +1,4 @@
-package autodesk.com.clientlib;
+package com.autodesk.clientlib;
 
 public class KeyPair {
 

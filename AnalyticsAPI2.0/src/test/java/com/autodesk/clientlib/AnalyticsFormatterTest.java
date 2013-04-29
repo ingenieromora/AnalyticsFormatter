@@ -1,11 +1,14 @@
-package autodesk.com.clientlib;
+package com.autodesk.clientlib;
 
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import autodesk.com.clientlib.KeyPair.Key;
+import com.autodesk.clientlib.AnalyticsFormatter;
+import com.autodesk.clientlib.FacetsKeys;
+import com.autodesk.clientlib.KeyPair.Key;
+
 
 
 

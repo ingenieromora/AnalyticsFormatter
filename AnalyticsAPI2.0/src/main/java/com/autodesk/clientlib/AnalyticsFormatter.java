@@ -1,11 +1,11 @@
-package autodesk.com.clientlib;
+package com.autodesk.clientlib;
 
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import autodesk.com.clientlib.KeyPair.Key;
 
+import com.autodesk.clientlib.KeyPair.Key;
 import com.google.gson.Gson;
 
 /**
@@ -16,9 +16,9 @@ import com.google.gson.Gson;
  *
  */
 public class AnalyticsFormatter {
-
 //----------------------------------  Fields -------------------------------------------------
 	
+ private static java.lang.ThreadLocal<AnalyticsFormatter>    threadContext = new java.lang.ThreadLocal<AnalyticsFormatter>(); 
  private TreeMap<String, String> logAttrs = new TreeMap<String, String>();
  private EnumMap<Key, String> logEnumAttrs=new EnumMap<Key,String>(Key.class);
  public static final String ERROR_MESSAGE="NOT FOUND";
@@ -33,7 +33,24 @@ public class AnalyticsFormatter {
 	 */
 	public AnalyticsFormatter() {
 	}
-
+//----------------------------------  Statics Getters And Setters -------------------------------------------------
+	
+	private static AnalyticsFormatter  getCurrentThreadContext() { 
+		return threadContext.get(); 		
+	}
+	
+	private static void setCurrentThreadContext( AnalyticsFormatter   myAnalytics ) {
+		threadContext.set(myAnalytics); 
+	}
+	
+	public static synchronized AnalyticsFormatter getInstance(){
+		AnalyticsFormatter returnInstance=getCurrentThreadContext();
+		if(returnInstance==null){
+			returnInstance=new AnalyticsFormatter();
+			setCurrentThreadContext(returnInstance);
+		}
+		return returnInstance;
+	}
 //----------------------------------  Methods -------------------------------------------------
 
 	/**
