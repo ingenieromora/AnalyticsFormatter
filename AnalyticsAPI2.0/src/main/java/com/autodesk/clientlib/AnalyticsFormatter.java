@@ -16,15 +16,17 @@ import com.google.gson.Gson;
  *
  */
 public class AnalyticsFormatter {
-//----------------------------------  Fields -------------------------------------------------
 	
- private static java.lang.ThreadLocal<AnalyticsFormatter>    threadContext = new java.lang.ThreadLocal<AnalyticsFormatter>(); 
- private TreeMap<String, String> logAttrs = new TreeMap<String, String>();
- private EnumMap<Key, String> logEnumAttrs=new EnumMap<Key,String>(Key.class);
- public static final String ERROR_MESSAGE="NOT FOUND";
+//----------------------------------  Fields -------------------------------------------------
+	 
+	 private static java.lang.ThreadLocal<AnalyticsFormatter>    threadContext = new java.lang.ThreadLocal<AnalyticsFormatter>(); 
+	 private TreeMap<String, String> logAttrs = new TreeMap<String, String>();
+	 private EnumMap<Key, String> logEnumAttrs=new EnumMap<Key,String>(Key.class);
+	 public static final String ERROR_MESSAGE="NOT FOUND";
+	 
 //----------------------------------  Constructors -------------------------------------------------
-
-	/**
+	 
+	 /**
 	 * Create an instance of Analytics Writer class.
 	 * @author leandro.mora
 	 * @return AnalyticsWriter instance
@@ -33,16 +35,25 @@ public class AnalyticsFormatter {
 	 */
 	public AnalyticsFormatter() {
 	}
+	
 //----------------------------------  Statics Getters And Setters -------------------------------------------------
 	
 	private static AnalyticsFormatter  getCurrentThreadContext() { 
 		return threadContext.get(); 		
 	}
-	
+
+	//----------------------------------	
 	private static void setCurrentThreadContext( AnalyticsFormatter   myAnalytics ) {
 		threadContext.set(myAnalytics); 
 	}
-	
+
+	//----------------------------------	
+	/**
+	 * In case there isn't a Analytics Formatter object associated with a thread local variable, it creates it and associates it with the thread local variable.
+	 * In case it is already created, it returns the analytics formatter object.
+	 * @return AnalyticsFormatter object
+	 * @author leandro.mora
+	 */
 	public static synchronized AnalyticsFormatter getInstance(){
 		AnalyticsFormatter returnInstance=getCurrentThreadContext();
 		if(returnInstance==null){
@@ -51,8 +62,9 @@ public class AnalyticsFormatter {
 		}
 		return returnInstance;
 	}
+	
 //----------------------------------  Methods -------------------------------------------------
-
+	
 	/**
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
 	 * @param a Key instance with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
@@ -67,8 +79,8 @@ public class AnalyticsFormatter {
 		}
 		return this;
 	}
-	//----------------------------------
 
+//----------------------------------
 	/**
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
 	 * @param a String key with which the specified value is to be associated. We recommend to use pass a Static String variable insted of an ordinary string.
@@ -85,44 +97,61 @@ public class AnalyticsFormatter {
 	}
 	
 //----------------------------------
+	/**
+	 * Associates the specified value with the specified key.
+	 * @param a String key with which the specified value is to be associated.
+	 * @version 2.0
+	 * @return  value value to be associated with the specified key
+	 * @author t_moral
+	 */
+	public synchronized String get(Key key) {
+		return logEnumAttrs.get(key);
+	}
 
-/**
- * Associates the specified value with the specified key.
- * @param a String key with which the specified value is to be associated.
- * @version 2.0
- * @return  value value to be associated with the specified key
- * @author t_moral
- */
-public synchronized String get(Key key) {
-	String output=ERROR_MESSAGE;
-	if((key!=null)){
-		output=logEnumAttrs.get(key);
+//----------------------------------
+	/**
+	* Returns true in case the key is stored into the analytics formatter object.In other case, it returns false.
+	* @param an object key with which the specified value should be associated.
+	* @version 2.0
+	* @return  a boolean value
+	* @author t_moral
+	*/
+	public synchronized boolean hasKey(Key key) {
+		boolean returnedValue=false;
+		if( (key!=null) && (logEnumAttrs.get(key)!=null) ){
+			returnedValue=true;
+		}
+		return returnedValue;
 	}
-	if(output==null){
-		output=ERROR_MESSAGE;
+
+//----------------------------------
+	/**
+	* Get a value with a key passed as parameter.
+	* @param a String key with which the specified value is to be associated.
+	* @return value value to be associated with the specified key
+	* @version 2.0
+	* @author t_moral
+	*/
+	public synchronized String get(String key) {
+		return logAttrs.get(key);
 	}
-	return output;
-}
 
 //----------------------------------
 
-/**
-* Get a value with a key passed as parameter.
-* @param a String key with which the specified value is to be associated.
-* @return value value to be associated with the specified key
-* @version 2.0
-* @author t_moral
-*/
-public synchronized String get(String key) {
-	String output=ERROR_MESSAGE;
-	if(!(key.isEmpty())){
-		output=logAttrs.get(key);
+	/**
+	* Returns true in case the key is stored into the analytics formatter object.In other case, it returns false.
+	* @param a String key with which the specified value should be associated.
+	* @version 2.0
+	* @return  a boolean value
+	* @author t_moral
+	*/
+	public synchronized boolean hasKey(String key) {
+		boolean returnedValue=false;
+		if( (key!=null) && (logAttrs.get(key)!=null) ){
+			returnedValue=true;
+		}
+		return returnedValue;
 	}
-	if(output==null){
-		output=ERROR_MESSAGE;
-	}
-	return output;
-}
 //----------------------------------
 
 	private String formatAttributesAsJason() {

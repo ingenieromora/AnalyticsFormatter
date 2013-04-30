@@ -119,13 +119,33 @@ public class AnalyticsFormatterTest {
 		public void testGet(){
 			myAnalytics=new AnalyticsFormatter();
 			myAnalytics.put(Key.API_CATEGORY, "file")
-			.put(FacetsKeys.CURRENT_STATE,"2.0.4");
+						.put(FacetsKeys.CURRENT_STATE,"2.0.4");
 			
 			Assert.assertEquals("file", myAnalytics.get(Key.API_CATEGORY));
 			Assert.assertEquals("2.0.4", myAnalytics.get(FacetsKeys.CURRENT_STATE));
-			Assert.assertEquals(AnalyticsFormatter.ERROR_MESSAGE, myAnalytics.get(Key.CONTEXT_CALL));
-			Assert.assertEquals(AnalyticsFormatter.ERROR_MESSAGE, myAnalytics.get(FacetsKeys.JOBID));		
+			Assert.assertNull(myAnalytics.get(Key.CONTEXT_CALL));
+			Assert.assertNull(myAnalytics.get(FacetsKeys.JOBID));		
 		
-		}		
+		}
+		
+	//----------------------------------------------
+		
+		/**
+		 * Test that given some attributes the method returns the appropriate output string.
+		 * We remove the timestamp from the test because it is generated automatically
+		 * @author leandro.mora
+		 */
+		@Test
+		public void testHasKey(){
+			myAnalytics=new AnalyticsFormatter();
+			myAnalytics.put(Key.API_CATEGORY, "file")
+						.put(FacetsKeys.CURRENT_STATE,"2.0.4");
+			
+			Assert.assertTrue(myAnalytics.hasKey(Key.API_CATEGORY));
+			Assert.assertTrue(myAnalytics.hasKey(FacetsKeys.CURRENT_STATE));
+			Assert.assertFalse(myAnalytics.hasKey(Key.CONTEXT_CALL));
+			Assert.assertFalse(myAnalytics.hasKey(FacetsKeys.JOBID));		
+		
+		}
 	
 }
