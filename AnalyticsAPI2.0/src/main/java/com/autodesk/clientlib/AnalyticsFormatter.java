@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpServletRequest;
 
 import com.autodesk.clientlib.KeyPair.Key;
 import com.google.gson.Gson;
@@ -52,7 +53,7 @@ public class AnalyticsFormatter {
 	 * In case there isn't a Analytics Formatter object associated with a thread local variable, it creates it and associates it with the thread local variable.
 	 * In case it is already created, it returns the analytics formatter object.
 	 * @return AnalyticsFormatter object
-	 * @author leandro.mora
+	 * @author t_moral
 	 */
 	public static synchronized AnalyticsFormatter getInstance(){
 		AnalyticsFormatter returnInstance=getCurrentThreadContext();
@@ -95,7 +96,24 @@ public class AnalyticsFormatter {
 		}
 		return this;
 	}
-	
+
+	//----------------------------------
+		/**
+		 * Get information from a HTTP object passed as parameter.Put that information into the Analytic Formatter Object
+		 * @param a http Request
+		 * @return the current AnalyticsWriter instance
+		 * @version 2.0
+		 * @author t_moral
+		 */
+		public synchronized AnalyticsFormatter put(HttpServletRequest request) {
+			if(request.getSession()!=null){
+				logEnumAttrs.put(Key.CONTEXT_SESSION, request.getSession().toString());
+			}
+			if(request.getMethod()!=null){
+				logEnumAttrs.put(Key.API_METHOD, request.getMethod());
+			}
+			return this;
+		}
 //----------------------------------
 	/**
 	 * Associates the specified value with the specified key.
