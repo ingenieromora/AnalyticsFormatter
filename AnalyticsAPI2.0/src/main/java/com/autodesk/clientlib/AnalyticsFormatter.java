@@ -1,6 +1,7 @@
 package com.autodesk.clientlib;
 
-import java.util.EnumMap;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,7 +23,6 @@ public class AnalyticsFormatter {
 	 
 	 private static java.lang.ThreadLocal<AnalyticsFormatter>    threadContext = new java.lang.ThreadLocal<AnalyticsFormatter>(); 
 	 private TreeMap<String, String> logAttrs = new TreeMap<String, String>();
-	 private EnumMap<Key, String> logEnumAttrs=new EnumMap<Key,String>(Key.class);
 	 public static final String ERROR_MESSAGE="NOT FOUND";
 	 
 //----------------------------------  Constructors -------------------------------------------------
@@ -75,8 +75,8 @@ public class AnalyticsFormatter {
 	 * @author t_moral
 	 */
 	public synchronized AnalyticsFormatter put(Key key, String value) {
-		if( (key!=null) && !(value.isEmpty()) ){
-			logEnumAttrs.put(key, value);
+		if( (key!=null) && (value!=null) && !(value.isEmpty()) ){
+			logAttrs.put(key.getValue(), value);
 		}
 		return this;
 	}
@@ -91,7 +91,7 @@ public class AnalyticsFormatter {
 	 * @author t_moral
 	 */
 	public synchronized AnalyticsFormatter put(String key, String value) {
-		if(!(key.isEmpty()) & !(value.isEmpty())){
+		if(!(key.isEmpty()) && (value!=null) && !(value.isEmpty()) ){
 			logAttrs.put(key, value);
 		}
 		return this;
@@ -108,29 +108,52 @@ public class AnalyticsFormatter {
 		public synchronized AnalyticsFormatter put(HttpServletRequest request) {
 			
 			//Context Parameters
-			checkAndPut(logEnumAttrs, Key.CONTEXT_TENANT, request.getHeader("x-ads-ctx-tenant"));
-			checkAndPut(logEnumAttrs, Key.CONTEXT_USER, request.getHeader("x-ads-ctx-user"));
-			checkAndPut(logEnumAttrs, Key.CONTEXT_SESSION, request.getHeader("x-ads-ctx-session"));
-			checkAndPut(logEnumAttrs, Key.CONTEXT_JOB, request.getHeader("x-ads-ctx-JOB"));
-			checkAndPut(logEnumAttrs, Key.CONTEXT_IDENTITY, request.getHeader("x-ads-ctx-identity"));
-			checkAndPut(logEnumAttrs, Key.CONTEXT_CALL, request.getHeader("x-ads-ctx-call"));
+			put(Key.CONTEXT_TENANT, request.getHeader("x-ads-ctx-tenant"));
+			put(Key.CONTEXT_USER, request.getHeader("x-ads-ctx-user"));
+			put(Key.CONTEXT_SESSION, request.getHeader("x-ads-ctx-session"));
+			put(Key.CONTEXT_JOB, request.getHeader("x-ads-ctx-job"));
+			put(Key.CONTEXT_IDENTITY, request.getHeader("x-ads-ctx-identity"));
+			put(Key.CONTEXT_CALL, request.getHeader("x-ads-ctx-call"));
 
-			//Facets Parameters
-			
+			//HTTP Facets Parameters
+			put(HttpFacetKeys.VERSION,"1.0.0");
+			put(HttpFacetKeys.METHOD,request.getMethod());
+			put(HttpFacetKeys.REMOTEIP,request.getRemoteAddr());//TODO ASK TONY
+			put(HttpFacetKeys.URL,request.getRequestURL().toString());
+			put(HttpFacetKeys.REQUEST_LEN,Integer.toString(request.getContentLength()));
+			this.getHeaders(request);
+			this.getFormParameters(request);
 
 			return this;			
 		}
-		private void checkAndPut(Map<Key,String> mapAttributes,Key key,String value){
-			if(value!=null){
-				mapAttributes.put(key, value);
-			}
-		}
 		
-		private void checkAndPut(Map<String,String> mapAttributes,String key,String value){
-			if(value!=null){
-				mapAttributes.put(key, value);
-			}
+		private void getFormParameters(HttpServletRequest request) {
+			@SuppressWarnings("unchecked")
+			Map<String,String> e = request.getParameterMap();
+			for (Map.Entry<String,String> entry : e.entrySet())
+			    	put(entry.getKey(),entry.getValue());			 
 		}
+
+
+		//TEST IT
+		private void getHeaders(HttpServletRequest request) {
+			ArrayList<String> repeatedHeaders=new ArrayList<String>();
+			repeatedHeaders.add(Key.CONTEXT_CALL.getValue());
+			repeatedHeaders.add(Key.CONTEXT_IDENTITY.getValue());
+			repeatedHeaders.add(Key.CONTEXT_TENANT.getValue());
+			repeatedHeaders.add(Key.CONTEXT_USER.getValue());
+			repeatedHeaders.add(Key.CONTEXT_JOB.getValue());
+			repeatedHeaders.add(Key.CONTEXT_SESSION.getValue());
+
+			for (@SuppressWarnings("unchecked")
+			Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();){
+			       String inputHeader=e.nextElement();
+			       if(inputHeader.startsWith("x-ads") && !(repeatedHeaders.contains(inputHeader))){
+			    	   put(inputHeader,request.getHeader(inputHeader));
+			       }
+			}       
+		}
+
 //----------------------------------
 	/**
 	 * Associates the specified value with the specified key.
@@ -140,7 +163,7 @@ public class AnalyticsFormatter {
 	 * @author t_moral
 	 */
 	public synchronized String get(Key key) {
-		return logEnumAttrs.get(key);
+		return logAttrs.get(key.getValue());
 	}
 
 //----------------------------------
@@ -153,7 +176,7 @@ public class AnalyticsFormatter {
 	*/
 	public synchronized boolean hasKey(Key key) {
 		boolean returnedValue=false;
-		if( (key!=null) && (logEnumAttrs.get(key)!=null) ){
+		if( (key!=null) && (logAttrs.get(key.getValue())!=null) ){
 			returnedValue=true;
 		}
 		return returnedValue;
@@ -192,21 +215,11 @@ public class AnalyticsFormatter {
 	private String formatAttributesAsJason() {
 
 		String json = "";
-		logAttrs=this.mixMaps(logEnumAttrs, logAttrs);
+		//logAttrs=this.mixMaps(logEnumAttrs, logAttrs);
 		json = new Gson().toJson(logAttrs);
 		return json;
 	}
 	
-//----------------------------------
-	
-	private TreeMap<String,String> mixMaps(EnumMap<Key, String> enumMap,TreeMap<String,String> treeMap){
-		
-		for (Map.Entry<Key, String> entry : enumMap.entrySet())
-		{
-		    treeMap.put(entry.getKey().toString().toLowerCase(), entry.getValue());
-		}
-		return treeMap;
-	}
 //----------------------------------
 	
 	/**
