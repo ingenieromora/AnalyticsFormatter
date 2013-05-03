@@ -10,9 +10,9 @@ public class ThreadLocalExample implements Runnable{
 //----------------------------------------
 
 	public void methodB(){
-		AnalyticsFormatter.getInstance().put(Key.DURATION, "1000");
+		LogItem.getInstance().put(Key.DURATION, "1000");
 
-		String api_category=AnalyticsFormatter.getInstance().get(Key.API_CATEGORY);
+		String api_category=LogItem.getInstance().get(Key.API_CATEGORY);
 
 		example_logger.info("Method B---------------------------------");
 		example_logger.info("Value Got: "+api_category+" .Added Key.DURATION key-value pair");
@@ -23,9 +23,9 @@ public class ThreadLocalExample implements Runnable{
 //----------------------------------------
 	@Override
 	public void run() {
-		AnalyticsFormatter.getInstance().put(FacetsKeys.CURRENT_STATE, "aborted");
+		LogItem.getInstance().put(FacetsKeys.CURRENT_STATE, "aborted");
 		example_logger.info("Newo thread-----------------------------");
-		example_logger.info(AnalyticsFormatter.getInstance().outputEvent());
+		example_logger.info(LogItem.getInstance().outputEvent());
 		example_logger.info("Current Thread:"+Thread.currentThread()+'\n');
 
 	}
@@ -34,15 +34,15 @@ public class ThreadLocalExample implements Runnable{
 
 	public static void main(String[] args) {
 		ThreadLocalExample myExample=new ThreadLocalExample();
-		AnalyticsFormatter.getInstance().put(Key.API_CATEGORY,"file");
+		LogItem.getInstance().put(Key.API_CATEGORY,"file");
 		example_logger.info("Main Method---------------------------------");
-		example_logger.info(AnalyticsFormatter.getInstance().outputEvent());
+		example_logger.info(LogItem.getInstance().outputEvent());
 		example_logger.info("Current Thread:"+Thread.currentThread()+'\n');
 
 		myExample.methodB();
 		
 		example_logger.info("Main Method---------------------------------");
-		example_logger.info(AnalyticsFormatter.getInstance().outputEvent());
+		example_logger.info(LogItem.getInstance().outputEvent());
 		example_logger.info("Current Thread:"+Thread.currentThread()+'\n');
 		//Returns
 		new Thread(myExample).start();
