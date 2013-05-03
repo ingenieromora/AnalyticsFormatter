@@ -96,8 +96,8 @@ public class AnalyticsFormatter {
 		}
 		return this;
 	}
-
-	//----------------------------------
+	
+//----------------------------------
 		/**
 		 * Get information from a HTTP object passed as parameter.Put that information into the Analytic Formatter Object
 		 * @param a http Request
@@ -106,13 +106,30 @@ public class AnalyticsFormatter {
 		 * @author t_moral
 		 */
 		public synchronized AnalyticsFormatter put(HttpServletRequest request) {
-			if(request.getSession()!=null){
-				logEnumAttrs.put(Key.CONTEXT_SESSION, request.getSession().toString());
+			
+			//Context Parameters
+			checkAndPut(logEnumAttrs, Key.CONTEXT_TENANT, request.getHeader("x-ads-ctx-tenant"));
+			checkAndPut(logEnumAttrs, Key.CONTEXT_USER, request.getHeader("x-ads-ctx-user"));
+			checkAndPut(logEnumAttrs, Key.CONTEXT_SESSION, request.getHeader("x-ads-ctx-session"));
+			checkAndPut(logEnumAttrs, Key.CONTEXT_JOB, request.getHeader("x-ads-ctx-JOB"));
+			checkAndPut(logEnumAttrs, Key.CONTEXT_IDENTITY, request.getHeader("x-ads-ctx-identity"));
+			checkAndPut(logEnumAttrs, Key.CONTEXT_CALL, request.getHeader("x-ads-ctx-call"));
+
+			//Facets Parameters
+			
+
+			return this;			
+		}
+		private void checkAndPut(Map<Key,String> mapAttributes,Key key,String value){
+			if(value!=null){
+				mapAttributes.put(key, value);
 			}
-			if(request.getMethod()!=null){
-				logEnumAttrs.put(Key.API_METHOD, request.getMethod());
+		}
+		
+		private void checkAndPut(Map<String,String> mapAttributes,String key,String value){
+			if(value!=null){
+				mapAttributes.put(key, value);
 			}
-			return this;
 		}
 //----------------------------------
 	/**
