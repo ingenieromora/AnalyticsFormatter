@@ -12,8 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import sun.net.httpserver.HttpServerImpl;
-
 import com.autodesk.clientlib.KeyPair.Key;
 
 
@@ -28,11 +26,10 @@ public class LogItemTest {
 	}
 
 //----------------------------------------------
-
 	/**
 	 * Test to evaluate that the category is properly set using the constructor.
-	 * We remove the timestamp from the test because it is generated automatically
-	 * @author leandro.mora
+	 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
+	 * @author t_moral
 	 */
 	@Test
 	public void testConstructor(){
@@ -44,12 +41,11 @@ public class LogItemTest {
 	}
 	
 //----------------------------------------------
-
 	/**
 	 * Test to evaluate that if the user put in the key but Key is not passed as parameter, that put method is omitted
 	 * Test to evaluate that the category is properly set using the constructor.
-	 * We remove the timestamp from the test because it is generated automatically
-	 * @author leandro.mora
+	 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
+	 * @author t_moral
 	 */
 	@Test
 	public void testNullKey(){
@@ -61,11 +57,10 @@ public class LogItemTest {
 	}
 
 //----------------------------------------------
-
 		/**
 		 * Test to evaluate that if the user put in the key but Value is not passed as parameter, that put method is omitted
-		 * We remove the timestamp from the test because it is generated automatically
-		 * @author leandro.mora
+ 		 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
+		 * @author t_moral
 		 */
 		@Test
 		public void testNullValue(){
@@ -80,11 +75,10 @@ public class LogItemTest {
 
 
 //----------------------------------------------
-
 		/**
 		 * Test to evaluate that if the user put in the key but the Value and key are not passed as parameter, that put method is omitted
-		 * We remove the timestamp from the test because it is generated automatically
-		 * @author leandro.mora
+		 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.		
+		 * @author t_moral
 		 */
 		@Test
 		public void testNullValueAndNullKey(){
@@ -96,11 +90,10 @@ public class LogItemTest {
 		}
 
 //----------------------------------------------
-
-
 		/**
 		 * Test to evaluate that the put method with a HTTPServletRequest as parameter.
-		 * @author leandro.mora
+		 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
+		 * @author t_moral
 		 */
 		@Test
 		public void testPutHttp(){
@@ -156,12 +149,12 @@ public class LogItemTest {
 			String expectedParams="{\"product\":\"Autocad\",\"version\":\"2013\"}";
 			Assert.assertEquals(expectedParams, myAnalytics.get(HttpFacetKeys.FORM_PARAMS));
 		}
-//----------------------------------------------
 		
+//----------------------------------------------
 	/**
 	 * Test that given some attributes the method returns the appropriate output string.
-	 * We remove the timestamp from the test because it is generated automatically
-	 * @author leandro.mora
+	 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
+	 * @author t_moral
 	 */
 	@Test
 	public void testKeyJoiner(){
@@ -173,12 +166,11 @@ public class LogItemTest {
 		Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 	}
-//----------------------------------------------
 	
+//----------------------------------------------
 		/**
 		 * Test that given some attributes the method returns the appropriate output string.
-		 * We remove the timestamp from the test because it is generated automatically
-		 * @author leandro.mora
+		 * @author t_moral
 		 */
 		@Test
 		public void testGet(){
@@ -192,12 +184,12 @@ public class LogItemTest {
 		
 		}
 		
-	//----------------------------------------------
-		
+//----------------------------------------------
 		/**
 		 * Test that given some attributes the method returns the appropriate output string.
 		 * We remove the timestamp from the test because it is generated automatically
-		 * @author leandro.mora
+		 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
+		 * @author t_moral
 		 */
 		@Test
 		public void testHasKey(){
@@ -210,11 +202,13 @@ public class LogItemTest {
 			Assert.assertFalse(myAnalytics.hasKey(FacetsKeys.JOBID));		
 		
 		}
-	//----------------------------------------------
+	
+//----------------------------------------------
 		
 		/**
-		 * Test that given some attributes the method returns the appropriate output string.
-		 * We remove the timestamp from the test because it is generated automatically
+		 * Test for addPropsToHttp method.
+		 * Test that having an input log item object, the information is set appropriately on the headers of a request passed as parameter to the addPropsToHttp 
+		 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
 		 * @author t_moral
 		 */
 		@Test
@@ -222,11 +216,9 @@ public class LogItemTest {
 			myAnalytics.put(Key.CONTEXT_CALL, "service").put(Key.CONTEXT_USER,"t_moral").put(Key.CONTEXT_IDENTITY,"Oxigen_Acces_Token")
 						.put(Key.CONTEXT_TENANT,"site").put(Key.CONTEXT_JOB,"job1").put(Key.CONTEXT_SESSION,"leoSession");
 			
-			String outputJsonHeader="";
-			myAnalytics.put(HttpFacetKeys.REQUEST_HEADER,outputJsonHeader);
-			
-			
-			
+			String inputJsonHeader="{\"x-ads-languages\":\"English\",\"x-ads-timezone\":\"Pacific\"}";
+			myAnalytics.put(HttpFacetKeys.REQUEST_HEADER,inputJsonHeader);
+						
 			HttpServletRequest mockRequest=org.mockito.Mockito.mock(HttpServletRequest.class);
 
 			myAnalytics.addPropsToHttp(mockRequest);
@@ -237,15 +229,18 @@ public class LogItemTest {
 			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_JOB.getValue(), "job1");
 			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_TENANT.getValue(), "site");
 			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_SESSION.getValue(), "leoSession");
+			org.mockito.Mockito.verify(mockRequest).setAttribute("x-ads-languages", "English");
+			org.mockito.Mockito.verify(mockRequest).setAttribute("x-ads-timezone", "Pacific");
 
 
 		}
-	//----------------------------------------------
+		
+//----------------------------------------------
 		
 		/**
 		 * Test that given some attributes the method returns the appropriate output string.
-		 * We remove the timestamp from the test because it is generated automatically
-		 * @author leandro.mora
+		 * The parameter used for testing may not be appropiate for being used in dev enviroment. They are only used in a test context.
+		 * @author t_moral
 		 */
 		@Test
 		public void testOutputEvent(){

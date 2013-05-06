@@ -3,13 +3,13 @@ package com.autodesk.clientlib;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.autodesk.clientlib.KeyPair.Key;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 /**
  * Class used for containing different attributes and generate with that information
@@ -190,14 +190,18 @@ public class LogItem {
 					checkAndPutLogItemToRequest(Key.CONTEXT_SESSION.getValue(), request);
 					checkAndPutLogItemToRequest(Key.CONTEXT_JOB.getValue(), request);
 					checkAndPutLogItemToRequest(Key.CONTEXT_IDENTITY.getValue(), request);
-					checkAndPutLogItemToRequest(Key.CONTEXT_CALL.getValue(), request);
 
 					//Add Headers
-					//addHeaderKeysToRequest(HttpFacetKeys.REQUEST_HEADER,request);
+					addHeaderKeysToRequest(HttpFacetKeys.REQUEST_HEADER,request);
 					return this;			
 				}
 				private void addHeaderKeysToRequest(String requestHeader,HttpServletRequest request) {
-					String ObjectValue=get(requestHeader);
+					String jSonHeaderValues=get(requestHeader);
+					@SuppressWarnings("unchecked")
+					TreeMap<String, String> mapheadersValues = new Gson().fromJson(jSonHeaderValues, TreeMap.class);
+					for(Entry<String, String> entry:mapheadersValues.entrySet()){
+						request.setAttribute(entry.getKey(), entry.getValue());
+					}
 				}
 
 				private LogItem checkAndPutLogItemToRequest(String key,HttpServletRequest request){
