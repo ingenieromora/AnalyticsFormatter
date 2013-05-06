@@ -68,8 +68,10 @@ public class LogItem {
 //----------------------------------  Methods -------------------------------------------------
 	
 	/**
-	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
-	 * If the value is null, the key is removed from the LogItem object
+	 *This method is used for assigning values to AP core schema attributes. 
+	 *The method associates the specified value with the specified key. 
+	 *If a valued for the key already exists, the old value is replaced by the new value. 
+	 *If value is "" or null, the corresponding key-pair is removed from the set saved with the ALI.
 	 * @param a Key instance with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
 	 * @param value value to be associated with the specified key
 	 * @return the currentLog Item instance
@@ -83,8 +85,10 @@ public class LogItem {
 
 //----------------------------------
 	/**
-	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
-	 * If the value is null, the key is removed from the LogItem object
+	 *This method is used for assigning values to AP core schema attributes. 
+	 *The method associates the specified value with the specified key. 
+	 *If a valued for the key already exists, the old value is replaced by the new value. 
+	 *If value is "" or null, the corresponding key-pair is removed from the set saved with the ALI.
 	 * @param a String key with which the specified value is to be associated. We recommend to use pass a Static String variable insted of an ordinary string.
 	 * @param value value to be associated with the specified key
 	 * @return the currentLog Item instance
@@ -106,7 +110,7 @@ public class LogItem {
 //----------------------------------
 	/**
 	 * Get information from a HTTP object passed as parameter.Put that information into the Log Item object
-	 * @param a http Request
+	 * @param a HttpServletRequest Object
 	 * @return the current Log Item instance
 	 * @version 2.0
 	 * @author t_moral
@@ -213,10 +217,10 @@ public class LogItem {
 
 //----------------------------------	
 	/**
-	 * Associates the specified value with the specified key.
+	 * Get a value associated with a key passed as parameter.
 	 * @param a String key with which the specified value is to be associated.
 	 * @version 2.0
-	 * @return  value value to be associated with the specified key
+	 * @return  value to be associated with the specified key
 	 * @author t_moral
 	 */
 	public synchronized String get(Key key) {
@@ -225,7 +229,7 @@ public class LogItem {
 
 //----------------------------------
 	/**
-	* Returns true in case the key is stored into the analytics formatter object.In other case, it returns false.
+	* Returns true in case the key is stored into the logItem object.In other case, it returns false.
 	* @param an object key with which the specified value should be associated.
 	* @version 2.0
 	* @return  a boolean value
@@ -237,7 +241,7 @@ public class LogItem {
 
 //----------------------------------
 	/**
-	* Get a value with a key passed as parameter.
+	* Get a value associated with a key passed as parameter.
 	* @param a String key with which the specified value is to be associated.
 	* @return value value to be associated with the specified key
 	* @version 2.0
@@ -250,7 +254,7 @@ public class LogItem {
 //----------------------------------
 
 	/**
-	* Returns true in case the key is stored into the analytics formatter object.In other case, it returns false.
+	* Returns true in case the key is stored into the logItem object.In other case, it returns false.
 	* @param a String key with which the specified value should be associated.
 	* @version 2.0
 	* @return  a boolean value
