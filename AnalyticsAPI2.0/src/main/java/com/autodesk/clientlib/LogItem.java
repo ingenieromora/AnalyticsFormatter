@@ -104,112 +104,112 @@ public class LogItem {
 	}
 	
 //----------------------------------
-		/**
-		 * Get information from a HTTP object passed as parameter.Put that information into the Log Item object
-		 * @param a http Request
-		 * @return the current Log Item instance
-		 * @version 2.0
-		 * @author t_moral
-		 */
-		public synchronized LogItem put(HttpServletRequest request) {
-			
-			//Context Parameters
-			checkAndPutContext(Key.CONTEXT_CALL.getValue(), request);
-			checkAndPutContext(Key.CONTEXT_TENANT.getValue(), request);
-			checkAndPutContext(Key.CONTEXT_USER.getValue(), request);
-			checkAndPutContext(Key.CONTEXT_SESSION.getValue(), request);
-			checkAndPutContext(Key.CONTEXT_JOB.getValue(), request);
-			checkAndPutContext(Key.CONTEXT_IDENTITY.getValue(), request);
-			checkAndPutContext(Key.CONTEXT_CALL.getValue(), request);
-			
-			//HTTP Facets Parameters
-			put(HttpFacetKeys.VERSION,"1.0.0");
-			put(HttpFacetKeys.METHOD,request.getMethod());
-			put(HttpFacetKeys.REMOTEIP,request.getRemoteAddr());//TODO ASK TONY
-			put(HttpFacetKeys.URL,request.getRequestURL().toString());
-			put(HttpFacetKeys.REQUEST_LEN,Integer.toString(request.getContentLength()));
-			this.addContextHeaders(HttpFacetKeys.REQUEST_HEADER,request);
-			this.putParamAttributes(HttpFacetKeys.FORM_PARAMS,request);
-			return this;			
+	/**
+	 * Get information from a HTTP object passed as parameter.Put that information into the Log Item object
+	 * @param a http Request
+	 * @return the current Log Item instance
+	 * @version 2.0
+	 * @author t_moral
+	 */
+	public synchronized LogItem put(HttpServletRequest request) {
+		
+		//Context Parameters
+		checkAndPutContext(Key.CONTEXT_CALL.getValue(), request);
+		checkAndPutContext(Key.CONTEXT_TENANT.getValue(), request);
+		checkAndPutContext(Key.CONTEXT_USER.getValue(), request);
+		checkAndPutContext(Key.CONTEXT_SESSION.getValue(), request);
+		checkAndPutContext(Key.CONTEXT_JOB.getValue(), request);
+		checkAndPutContext(Key.CONTEXT_IDENTITY.getValue(), request);
+		checkAndPutContext(Key.CONTEXT_CALL.getValue(), request);
+		
+		//HTTP Facets Parameters
+		put(HttpFacetKeys.VERSION,"1.0.0");
+		put(HttpFacetKeys.METHOD,request.getMethod());
+		put(HttpFacetKeys.REMOTEIP,request.getRemoteAddr());//TODO ASK TONY
+		put(HttpFacetKeys.URL,request.getRequestURL().toString());
+		put(HttpFacetKeys.REQUEST_LEN,Integer.toString(request.getContentLength()));
+		this.addContextHeaders(HttpFacetKeys.REQUEST_HEADER,request);
+		this.putParamAttributes(HttpFacetKeys.FORM_PARAMS,request);
+		return this;			
+	}
+	private LogItem checkAndPutContext(String key,HttpServletRequest request){
+		if(request.getHeader(key)!=null){
+			put(key,request.getHeader(key));
 		}
-		private LogItem checkAndPutContext(String key,HttpServletRequest request){
-			if(request.getHeader(key)!=null){
-				put(key,request.getHeader(key));
-			}
-			return this;
-		}
-		private void putParamAttributes(String key,HttpServletRequest request) {
-			@SuppressWarnings("unchecked")
-			Map<String,String> parameterMap = request.getParameterMap();
-			String jsonValues = new Gson().toJson(parameterMap);    	
-			put(key,jsonValues);	
-		}
+		return this;
+	}
+	private void putParamAttributes(String key,HttpServletRequest request) {
+		@SuppressWarnings("unchecked")
+		Map<String,String> parameterMap = request.getParameterMap();
+		String jsonValues = new Gson().toJson(parameterMap);    	
+		put(key,jsonValues);	
+	}
 
 
-		private void addContextHeaders(String key,HttpServletRequest request) {
-			ArrayList<String> repeatedHeaders=new ArrayList<String>();
-			repeatedHeaders.add(Key.CONTEXT_CALL.getValue());
-			repeatedHeaders.add(Key.CONTEXT_IDENTITY.getValue());
-			repeatedHeaders.add(Key.CONTEXT_TENANT.getValue());
-			repeatedHeaders.add(Key.CONTEXT_USER.getValue());
-			repeatedHeaders.add(Key.CONTEXT_JOB.getValue());
-			repeatedHeaders.add(Key.CONTEXT_SESSION.getValue());
+	private void addContextHeaders(String key,HttpServletRequest request) {
+		ArrayList<String> repeatedHeaders=new ArrayList<String>();
+		repeatedHeaders.add(Key.CONTEXT_CALL.getValue());
+		repeatedHeaders.add(Key.CONTEXT_IDENTITY.getValue());
+		repeatedHeaders.add(Key.CONTEXT_TENANT.getValue());
+		repeatedHeaders.add(Key.CONTEXT_USER.getValue());
+		repeatedHeaders.add(Key.CONTEXT_JOB.getValue());
+		repeatedHeaders.add(Key.CONTEXT_SESSION.getValue());
 
-			TreeMap<String,String> headerMaps=new TreeMap<String,String>();
-			getHeadersMap(request, repeatedHeaders, headerMaps);
-			String jsonValues = new Gson().toJson(headerMaps);    	
-			put(key,jsonValues);
-		}
+		TreeMap<String,String> headerMaps=new TreeMap<String,String>();
+		getHeadersMap(request, repeatedHeaders, headerMaps);
+		String jsonValues = new Gson().toJson(headerMaps);    	
+		put(key,jsonValues);
+	}
 
-		private void getHeadersMap(HttpServletRequest request,
-				ArrayList<String> repeatedHeaders,
-				TreeMap<String, String> headerMaps) {
-			for (@SuppressWarnings("unchecked")
-			Enumeration<String> e = request.getHeaderNames(); 
-			e.hasMoreElements();){
-				String inputHeader=e.nextElement();
-				if(inputHeader.startsWith("x-ads") && !(repeatedHeaders.contains(inputHeader))){
-					headerMaps.put(inputHeader, request.getHeader(inputHeader));		    	   
-			    }
-			}
+	private void getHeadersMap(HttpServletRequest request,
+			ArrayList<String> repeatedHeaders,
+			TreeMap<String, String> headerMaps) {
+		for (@SuppressWarnings("unchecked")
+		Enumeration<String> e = request.getHeaderNames(); 
+		e.hasMoreElements();){
+			String inputHeader=e.nextElement();
+			if(inputHeader.startsWith("x-ads") && !(repeatedHeaders.contains(inputHeader))){
+				headerMaps.put(inputHeader, request.getHeader(inputHeader));		    	   
+		    }
 		}
+	}
 
 //----------------------------------
-				/**
-				 * Get information from a Log Item Object and set that information as an attribute for a given request object.
-				 * @param a http Request
-				 * @return the current Log Item instance
-				 * @version 2.0
-				 * @author t_moral
-				 */
-				public synchronized LogItem addPropsToHttp(HttpServletRequest request) {
-					
-					checkAndPutLogItemToRequest(Key.CONTEXT_CALL.getValue(), request);
-					checkAndPutLogItemToRequest(Key.CONTEXT_TENANT.getValue(), request);
-					checkAndPutLogItemToRequest(Key.CONTEXT_USER.getValue(), request);
-					checkAndPutLogItemToRequest(Key.CONTEXT_SESSION.getValue(), request);
-					checkAndPutLogItemToRequest(Key.CONTEXT_JOB.getValue(), request);
-					checkAndPutLogItemToRequest(Key.CONTEXT_IDENTITY.getValue(), request);
+	/**
+	 * Get information from a Log Item Object and set that information as an attribute for a given request object.
+	 * @param a http Request
+	 * @return the current Log Item instance
+	 * @version 2.0
+	 * @author t_moral
+	 */
+	public synchronized LogItem addPropsToHttp(HttpServletRequest request) {
+		
+		checkAndPutLogItemToRequest(Key.CONTEXT_CALL.getValue(), request);
+		checkAndPutLogItemToRequest(Key.CONTEXT_TENANT.getValue(), request);
+		checkAndPutLogItemToRequest(Key.CONTEXT_USER.getValue(), request);
+		checkAndPutLogItemToRequest(Key.CONTEXT_SESSION.getValue(), request);
+		checkAndPutLogItemToRequest(Key.CONTEXT_JOB.getValue(), request);
+		checkAndPutLogItemToRequest(Key.CONTEXT_IDENTITY.getValue(), request);
 
-					//Add Headers
-					addHeaderKeysToRequest(HttpFacetKeys.REQUEST_HEADER,request);
-					return this;			
-				}
-				private void addHeaderKeysToRequest(String requestHeader,HttpServletRequest request) {
-					String jSonHeaderValues=get(requestHeader);
-					@SuppressWarnings("unchecked")
-					TreeMap<String, String> mapheadersValues = new Gson().fromJson(jSonHeaderValues, TreeMap.class);
-					for(Entry<String, String> entry:mapheadersValues.entrySet()){
-						request.setAttribute(entry.getKey(), entry.getValue());
-					}
-				}
+		//Add Headers
+		addHeaderKeysToRequest(HttpFacetKeys.REQUEST_HEADER,request);
+		return this;			
+	}
+	private void addHeaderKeysToRequest(String requestHeader,HttpServletRequest request) {
+		String jSonHeaderValues=get(requestHeader);
+		@SuppressWarnings("unchecked")
+		TreeMap<String, String> mapheadersValues = new Gson().fromJson(jSonHeaderValues, TreeMap.class);
+		for(Entry<String, String> entry:mapheadersValues.entrySet()){
+			request.setAttribute(entry.getKey(), entry.getValue());
+		}
+	}
 
-				private LogItem checkAndPutLogItemToRequest(String key,HttpServletRequest request){
-					if(get(key)!=null){
-						request.setAttribute(key,get(key));
-					}
-					return this;
-				}
+	private LogItem checkAndPutLogItemToRequest(String key,HttpServletRequest request){
+		if(get(key)!=null){
+			request.setAttribute(key,get(key));
+		}
+		return this;
+	}
 
 //----------------------------------	
 	/**
@@ -263,18 +263,6 @@ public class LogItem {
 		}
 		return returnedValue;
 	}
-	//----------------------------------
-
-		/**
-		* Returns true in case the key is stored into the analytics formatter object.In other case, it returns false.
-		* @param a String key with which the specified value should be associated.
-		* @version 2.0
-		* @return  a boolean value
-		* @author t_moral
-		*/
-//		public synchronized boolean addPropsToHttp(HttpServletResponse response) {
-//			response.addHeader(name, value)
-//		}	
 	
 //----------------------------------
 
