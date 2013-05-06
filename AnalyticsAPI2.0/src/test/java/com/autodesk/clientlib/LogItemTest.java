@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import sun.net.httpserver.HttpServerImpl;
+
 import com.autodesk.clientlib.KeyPair.Key;
 
 
@@ -71,7 +73,7 @@ public class LogItemTest {
 			myAnalytics.put(Key.API_CATEGORY,"file").put(Key.API_SCOPE, "").put(Key.FACETS_INCLUDED, "storage").put(Key.VERSION,"1.0.0");
 			myAnalytics.put(Key.FACETS_INCLUDED, null);
 
-			String expected="{\"api_category\":\"file\",\"facets_included\":\"storage\"}";
+			String expected="{\"api_category\":\"file\",\"version\":\"1.0.0\"}";
 			Assert.assertEquals(expected,myAnalytics.outputEvent());
 
 		}			
@@ -105,8 +107,8 @@ public class LogItemTest {
 			HttpServletRequest mockRequest=org.mockito.Mockito.mock(HttpServletRequest.class);
 			
 			Mockito.doReturn("PUT").when(mockRequest).getMethod();
-			Mockito.doReturn("t_moral").when(mockRequest).getHeader("x-ads-ctx-user");
-			Mockito.doReturn("site").when(mockRequest).getHeader("x-ads-ctx-tenant");
+			Mockito.doReturn("t_moral").when(mockRequest).getHeader(Key.CONTEXT_USER.getValue());
+			Mockito.doReturn("site").when(mockRequest).getHeader(Key.CONTEXT_TENANT.getValue());
 			Mockito.doReturn("192.168.1.1").when(mockRequest).getRemoteAddr();
 			
 			StringBuffer urlBF=new StringBuffer();
@@ -124,10 +126,14 @@ public class LogItemTest {
 			headers.add("cookie");
 			headers.add("x-ads-job");
 			headers.add("x-ads-languages");
+			headers.add("x-ads-timezone");
 			headers.add("x-ads-tenants");
 			Mockito.doReturn(headers.elements()).when(mockRequest).getHeaderNames();
 			Mockito.doReturn("English").when(mockRequest).getHeader("x-ads-languages");
-
+			Mockito.doReturn("Pacific").when(mockRequest).getHeader("x-ads-timezone");
+			
+			myAnalytics.put(Key.CONTEXT_CALL,"facets");
+			
 			myAnalytics.put(mockRequest);
 			
 			//General Evaluation
@@ -137,15 +143,18 @@ public class LogItemTest {
 			Assert.assertEquals("192.168.1.1",myAnalytics.get(HttpFacetKeys.REMOTEIP));
 			Assert.assertEquals("http://autocad.com",myAnalytics.get(HttpFacetKeys.URL));
 			Assert.assertEquals("150000",myAnalytics.get(HttpFacetKeys.REQUEST_LEN));
+			
+			//CheckAndPutTest
 			Assert.assertNull(myAnalytics.get(Key.CONTEXT_SESSION));
-			//Headers Evaluation
-			Assert.assertEquals("English",myAnalytics.get("x-ads-languages"));
-			Assert.assertNull(myAnalytics.get("cookie"));
-			Assert.assertNull(myAnalytics.get("cookie"));
-			//Param Evaluation
-			Assert.assertEquals("Autocad", myAnalytics.get("product"));
-			Assert.assertEquals("2013", myAnalytics.get("version"));
-
+			Assert.assertEquals("facets", myAnalytics.get(Key.CONTEXT_CALL));
+			
+			//Headers Test
+			String expectedKeys="{\"x-ads-languages\":\"English\",\"x-ads-timezone\":\"Pacific\"}";
+			Assert.assertEquals(expectedKeys,myAnalytics.get(HttpFacetKeys.REQUEST_HEADER));
+			
+			//Param Test
+			String expectedParams="{\"product\":\"Autocad\",\"version\":\"2013\"}";
+			Assert.assertEquals(expectedParams, myAnalytics.get(HttpFacetKeys.FORM_PARAMS));
 		}
 //----------------------------------------------
 		
@@ -201,5 +210,85 @@ public class LogItemTest {
 			Assert.assertFalse(myAnalytics.hasKey(FacetsKeys.JOBID));		
 		
 		}
-	
+	//----------------------------------------------
+		
+		/**
+		 * Test that given some attributes the method returns the appropriate output string.
+		 * We remove the timestamp from the test because it is generated automatically
+		 * @author t_moral
+		 */
+		@Test
+		public void TestaddPropsToHttp(){
+			myAnalytics.put(Key.CONTEXT_CALL, "service").put(Key.CONTEXT_USER,"t_moral").put(Key.CONTEXT_IDENTITY,"Oxigen_Acces_Token")
+						.put(Key.CONTEXT_TENANT,"site").put(Key.CONTEXT_JOB,"job1").put(Key.CONTEXT_SESSION,"leoSession");
+			
+			String outputJsonHeader="";
+			myAnalytics.put(HttpFacetKeys.REQUEST_HEADER,outputJsonHeader);
+			
+			
+			
+			HttpServletRequest mockRequest=org.mockito.Mockito.mock(HttpServletRequest.class);
+
+			myAnalytics.addPropsToHttp(mockRequest);
+			
+			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_CALL.getValue(), "service");
+			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_USER.getValue(), "t_moral");
+			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_IDENTITY.getValue(), "Oxigen_Acces_Token");
+			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_JOB.getValue(), "job1");
+			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_TENANT.getValue(), "site");
+			org.mockito.Mockito.verify(mockRequest).setAttribute(Key.CONTEXT_SESSION.getValue(), "leoSession");
+
+
+		}
+	//----------------------------------------------
+		
+		/**
+		 * Test that given some attributes the method returns the appropriate output string.
+		 * We remove the timestamp from the test because it is generated automatically
+		 * @author leandro.mora
+		 */
+		@Test
+		public void testOutputEvent(){
+			//PUT HTTP METHOD
+
+			myAnalytics.put(Key.API_CATEGORY, "file")
+						.put(HttpFacetKeys.VERSION,"2.0.4");
+			
+			//PUT HTTP METHOD
+			HttpServletRequest mockRequest=org.mockito.Mockito.mock(HttpServletRequest.class);
+			
+			Mockito.doReturn("t_moral").when(mockRequest).getHeader("x-ads-ctx-user");
+			StringBuffer urlBF=new StringBuffer();
+			urlBF.append("http://autocad.com");
+			Mockito.doReturn(urlBF).when(mockRequest).getRequestURL();
+			Mockito.doReturn("PUT").when(mockRequest).getMethod();
+			Mockito.doReturn("192.168.1.1").when(mockRequest).getRemoteAddr();
+			Mockito.doReturn(1500).when(mockRequest).getContentLength();
+
+			//Parameters
+			TreeMap<String,String> paramMap=new TreeMap<>();
+			paramMap.put("product", "Autocad");
+			paramMap.put("version","2013");
+			Mockito.doReturn(paramMap).when(mockRequest).getParameterMap();
+			//Headers 
+			Vector<String> headers=new Vector<>();
+			headers.add("x-ads-languages");
+			headers.add("x-ads-timezone");
+			Mockito.doReturn(headers.elements()).when(mockRequest).getHeaderNames();
+			Mockito.doReturn("English").when(mockRequest).getHeader("x-ads-languages");
+			Mockito.doReturn("Pacific").when(mockRequest).getHeader("x-ads-timezone");
+			
+			myAnalytics.put(mockRequest);
+		
+			String expected="{\"api_category\":\"file\"," +
+					"\"http_form_params\":\"{\\\"product\\\":\\\"Autocad\\\",\\\"version\\\":\\\"2013\\\"}\"," +
+					"\"http_method\":\"PUT\",\"http_remoteip\":\"192.168.1.1\"," +
+					"\"http_request_headers\":\"{\\\"x-ads-languages\\\":\\\"English\\\",\\\"x-ads-timezone\\\":\\\"Pacific\\\"}\"," +
+					"\"http_request_len\":\"1500\",\"http_url\":\"http://autocad.com\"," +
+					"\"http_version\":\"1.0.0\",\"x-ads-ctx-user\":\"t_moral\"}";
+			Assert.assertEquals(expected, myAnalytics.outputEvent());
+			
+			String expectedHeader="{\"x-ads-languages\":\"English\",\"x-ads-timezone\":\"Pacific\"}";
+			Assert.assertEquals(expectedHeader, myAnalytics.get(HttpFacetKeys.REQUEST_HEADER));
+		}
 }

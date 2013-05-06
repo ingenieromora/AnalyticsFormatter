@@ -122,9 +122,11 @@ public class AnalyticsFormatterTest {
 			headers.add("cookie");
 			headers.add("x-ads-job");
 			headers.add("x-ads-languages");
+			headers.add("x-ads-timezone");
 			headers.add("x-ads-tenants");
 			Mockito.doReturn(headers.elements()).when(mockRequest).getHeaderNames();
 			Mockito.doReturn("English").when(mockRequest).getHeader("x-ads-languages");
+			Mockito.doReturn("Pacific").when(mockRequest).getHeader("x-ads-languages");
 
 			myAnalytics.put(mockRequest);
 			
@@ -136,13 +138,14 @@ public class AnalyticsFormatterTest {
 			Assert.assertEquals("http://autocad.com",myAnalytics.get(HttpFacetKeys.URL));
 			Assert.assertEquals("150000",myAnalytics.get(HttpFacetKeys.REQUEST_LEN));
 			Assert.assertNull(myAnalytics.get(Key.CONTEXT_SESSION));
-			//Headers Evaluation
-			Assert.assertEquals("English",myAnalytics.get("x-ads-languages"));
-			Assert.assertNull(myAnalytics.get("cookie"));
-			Assert.assertNull(myAnalytics.get("cookie"));
+			
+//			//Headers Evaluation
+//			String expectedKeys="{\"x-ads-languages\":\"English\",\"x-ads-timezone\":\"Pacific\"}";
+//			Assert.assertEquals(expectedKeys,myAnalytics.get(HttpFacetKeys.REQUEST_HEADER));
+//			
 			//Param Evaluation
-			Assert.assertEquals("Autocad", myAnalytics.get("product"));
-			Assert.assertEquals("2013", myAnalytics.get("version"));
+			String expectedParams="{\"product\":\"Autocad\",\"version\":\"2013\"}";
+			Assert.assertEquals(expectedParams, myAnalytics.get(HttpFacetKeys.FORM_PARAMS));
 
 		}
 //----------------------------------------------

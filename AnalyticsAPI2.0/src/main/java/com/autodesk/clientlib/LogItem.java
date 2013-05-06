@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.autodesk.clientlib.KeyPair.Key;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Class used for containing different attributes and generate with that information
@@ -28,9 +29,9 @@ public class LogItem {
 //----------------------------------  Constructors -------------------------------------------------
 	 
 	 /**
-	 * Create an instance of Analytics Writer class.
+	 * Create an instance of Log Item class.
 	 * @author leandro.mora
-	 * @return AnalyticsWriter instance
+	 * @returnLog Item instance
 	 * @version 2.0
 	 * @author t_moral
 	 */
@@ -50,9 +51,9 @@ public class LogItem {
 
 	//----------------------------------	
 	/**
-	 * In case there isn't a Analytics Formatter object associated with a thread local variable, it creates it and associates it with the thread local variable.
+	 * In case there isn't a Log Item object associated with a thread local variable, it creates it and associates it with the thread local variable.
 	 * In case it is already created, it returns the analytics formatter object.
-	 * @return AnalyticsFormatter object
+	 * @return LogItem object
 	 * @author t_moral
 	 */
 	public static synchronized LogItem getInstance(){
@@ -68,29 +69,25 @@ public class LogItem {
 	
 	/**
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
+	 * If the value is null, the key is removed from the LogItem object
 	 * @param a Key instance with which the specified value is to be associated. Only the keys defined in enumeration Key can be put.
 	 * @param value value to be associated with the specified key
-	 * @return the current AnalyticsWriter instance
+	 * @return the currentLog Item instance
 	 * @version 2.0
 	 * @author t_moral
 	 */
 	public synchronized LogItem put(Key key, String value) {
-		if((key!=null) ){
-			if((value!=null) && !(value.isEmpty())){ //TEST IT
-				logAttrs.put(key.getValue(), value);				
-			}else{
-				logAttrs.remove(key.getValue());
-			}
-		}
+		put(key.getValue(),value);
 		return this;
 	}
 
 //----------------------------------
 	/**
 	 * Associates the specified value with the specified key. If the key does already exist, the old value is replaced
+	 * If the value is null, the key is removed from the LogItem object
 	 * @param a String key with which the specified value is to be associated. We recommend to use pass a Static String variable insted of an ordinary string.
 	 * @param value value to be associated with the specified key
-	 * @return the current AnalyticsWriter instance
+	 * @return the currentLog Item instance
 	 * @version 2.0
 	 * @author t_moral
 	 */
@@ -108,22 +105,22 @@ public class LogItem {
 	
 //----------------------------------
 		/**
-		 * Get information from a HTTP object passed as parameter.Put that information into the Analytic Formatter Object
+		 * Get information from a HTTP object passed as parameter.Put that information into the Log Item object
 		 * @param a http Request
-		 * @return the current AnalyticsWriter instance
+		 * @return the current Log Item instance
 		 * @version 2.0
 		 * @author t_moral
 		 */
 		public synchronized LogItem put(HttpServletRequest request) {
 			
 			//Context Parameters
-			checkAndPutContext(Key.CONTEXT_CALL, request);
-			checkAndPutContext(Key.CONTEXT_TENANT, request);
-			checkAndPutContext(Key.CONTEXT_USER, request);
-			checkAndPutContext(Key.CONTEXT_SESSION, request);
-			checkAndPutContext(Key.CONTEXT_JOB, request);
-			checkAndPutContext(Key.CONTEXT_IDENTITY, request);
-			checkAndPutContext(Key.CONTEXT_CALL, request);
+			checkAndPutContext(Key.CONTEXT_CALL.getValue(), request);
+			checkAndPutContext(Key.CONTEXT_TENANT.getValue(), request);
+			checkAndPutContext(Key.CONTEXT_USER.getValue(), request);
+			checkAndPutContext(Key.CONTEXT_SESSION.getValue(), request);
+			checkAndPutContext(Key.CONTEXT_JOB.getValue(), request);
+			checkAndPutContext(Key.CONTEXT_IDENTITY.getValue(), request);
+			checkAndPutContext(Key.CONTEXT_CALL.getValue(), request);
 			
 			//HTTP Facets Parameters
 			put(HttpFacetKeys.VERSION,"1.0.0");
@@ -131,26 +128,25 @@ public class LogItem {
 			put(HttpFacetKeys.REMOTEIP,request.getRemoteAddr());//TODO ASK TONY
 			put(HttpFacetKeys.URL,request.getRequestURL().toString());
 			put(HttpFacetKeys.REQUEST_LEN,Integer.toString(request.getContentLength()));
-			this.getHeaders(request);
-			this.getFormParameters(request);
-
+			this.addContextHeaders(HttpFacetKeys.REQUEST_HEADER,request);
+			this.putParamAttributes(HttpFacetKeys.FORM_PARAMS,request);
 			return this;			
 		}
-		private LogItem checkAndPutContext(Key key,HttpServletRequest request){
-			if(request.getHeader(key.getValue())!=null){
-				put(key,request.getHeader(key.getValue()));
+		private LogItem checkAndPutContext(String key,HttpServletRequest request){
+			if(request.getHeader(key)!=null){
+				put(key,request.getHeader(key));
 			}
 			return this;
 		}
-		private void getFormParameters(HttpServletRequest request) {
+		private void putParamAttributes(String key,HttpServletRequest request) {
 			@SuppressWarnings("unchecked")
-			Map<String,String> e = request.getParameterMap();
-			for (Map.Entry<String,String> entry : e.entrySet())
-			    	put(entry.getKey(),entry.getValue());			 
+			Map<String,String> parameterMap = request.getParameterMap();
+			String jsonValues = new Gson().toJson(parameterMap);    	
+			put(key,jsonValues);	
 		}
 
 
-		private void getHeaders(HttpServletRequest request) {
+		private void addContextHeaders(String key,HttpServletRequest request) {
 			ArrayList<String> repeatedHeaders=new ArrayList<String>();
 			repeatedHeaders.add(Key.CONTEXT_CALL.getValue());
 			repeatedHeaders.add(Key.CONTEXT_IDENTITY.getValue());
@@ -159,17 +155,59 @@ public class LogItem {
 			repeatedHeaders.add(Key.CONTEXT_JOB.getValue());
 			repeatedHeaders.add(Key.CONTEXT_SESSION.getValue());
 
+			TreeMap<String,String> headerMaps=new TreeMap<String,String>();
+			getHeadersMap(request, repeatedHeaders, headerMaps);
+			String jsonValues = new Gson().toJson(headerMaps);    	
+			put(key,jsonValues);
+		}
+
+		private void getHeadersMap(HttpServletRequest request,
+				ArrayList<String> repeatedHeaders,
+				TreeMap<String, String> headerMaps) {
 			for (@SuppressWarnings("unchecked")
-			Enumeration<String> e = request.getHeaderNames(); e.hasMoreElements();){
-			       String inputHeader=e.nextElement();
-			       if(inputHeader.startsWith("x-ads") && !(repeatedHeaders.contains(inputHeader))){
-			    	   put(inputHeader,request.getHeader(inputHeader));
-			       }
-			}       
+			Enumeration<String> e = request.getHeaderNames(); 
+			e.hasMoreElements();){
+				String inputHeader=e.nextElement();
+				if(inputHeader.startsWith("x-ads") && !(repeatedHeaders.contains(inputHeader))){
+					headerMaps.put(inputHeader, request.getHeader(inputHeader));		    	   
+			    }
+			}
 		}
 
 //----------------------------------
-		
+				/**
+				 * Get information from a Log Item Object and set that information as an attribute for a given request object.
+				 * @param a http Request
+				 * @return the current Log Item instance
+				 * @version 2.0
+				 * @author t_moral
+				 */
+				public synchronized LogItem addPropsToHttp(HttpServletRequest request) {
+					
+					checkAndPutLogItemToRequest(Key.CONTEXT_CALL.getValue(), request);
+					checkAndPutLogItemToRequest(Key.CONTEXT_TENANT.getValue(), request);
+					checkAndPutLogItemToRequest(Key.CONTEXT_USER.getValue(), request);
+					checkAndPutLogItemToRequest(Key.CONTEXT_SESSION.getValue(), request);
+					checkAndPutLogItemToRequest(Key.CONTEXT_JOB.getValue(), request);
+					checkAndPutLogItemToRequest(Key.CONTEXT_IDENTITY.getValue(), request);
+					checkAndPutLogItemToRequest(Key.CONTEXT_CALL.getValue(), request);
+
+					//Add Headers
+					//addHeaderKeysToRequest(HttpFacetKeys.REQUEST_HEADER,request);
+					return this;			
+				}
+				private void addHeaderKeysToRequest(String requestHeader,HttpServletRequest request) {
+					String ObjectValue=get(requestHeader);
+				}
+
+				private LogItem checkAndPutLogItemToRequest(String key,HttpServletRequest request){
+					if(get(key)!=null){
+						request.setAttribute(key,get(key));
+					}
+					return this;
+				}
+
+//----------------------------------	
 	/**
 	 * Associates the specified value with the specified key.
 	 * @param a String key with which the specified value is to be associated.
@@ -190,11 +228,7 @@ public class LogItem {
 	* @author t_moral
 	*/
 	public synchronized boolean hasKey(Key key) {
-		boolean returnedValue=false;
-		if( (key!=null) && (logAttrs.get(key.getValue())!=null) ){
-			returnedValue=true;
-		}
-		return returnedValue;
+		return this.hasKey(key.getValue());
 	}
 
 //----------------------------------
