@@ -24,7 +24,7 @@ public class ThreadLocalExample implements Runnable{
 	@Override
 	public void run() {
 		LogItem.getInstance().put(FacetsKeys.CURRENT_STATE, "aborted");
-		example_logger.info("Newo thread-----------------------------");
+		example_logger.info("New thread-----------------------------");
 		example_logger.info(LogItem.getInstance().outputEvent());
 		example_logger.info("Current Thread:"+Thread.currentThread()+'\n');
 
@@ -46,6 +46,7 @@ public class ThreadLocalExample implements Runnable{
 		example_logger.info("Current Thread:"+Thread.currentThread()+'\n');
 		//Returns
 		new Thread(myExample).start();
+		
 	}
 
 //----------------------------------------
@@ -66,7 +67,7 @@ Output
 2013-04-30 17:01:32 ThreadLocalExample [INFO] {"api_category":"file","duration":"1000"}
 2013-04-30 17:01:32 ThreadLocalExample [INFO] Current Thread:Thread[main,5,main]
 
-2013-04-30 17:01:32 ThreadLocalExample [INFO] Newo thread-----------------------------
+2013-04-30 17:01:32 ThreadLocalExample [INFO] New thread-----------------------------
 2013-04-30 17:01:32 ThreadLocalExample [INFO] {"compute_job_current_state":"aborted"}
 2013-04-30 17:01:32 ThreadLocalExample [INFO] Current Thread:Thread[Thread-0,5,main]
 
