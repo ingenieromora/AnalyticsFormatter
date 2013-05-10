@@ -1,0 +1,12 @@
+Analytics Formatter
+@Version:2.0
+@Contact:leandro.mora@globant.com
+@Description:
+
+This API gives the user some methods to log information as a Jason Format in an easy way.
+You have the capability of using Thread Local Storage to associate different log items to threads.
+The user only has to instantiate a Log Item class, add to that class the attributes that he wants to be logged and print that information.
+The methods in this class are thread safe and all of them are tested.
+
+For more information please go to the wiki page:
+http://wiki.autodesk.com/pages/viewpage.action?pageId=112139079
